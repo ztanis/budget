@@ -3,3 +3,4 @@
 budget/files
 */__pycache__
 */*/__pycache__
+budget/data
