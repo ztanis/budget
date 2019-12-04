@@ -1,54 +1,59 @@
 from typing import Dict
 
 import pandas as pd
-import numpy as np
 import tensorflow as tf
 from keras import utils as np_utils
 from keras_preprocessing import sequence
 from keras_preprocessing.text import Tokenizer
-from pandas import DataFrame
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
 from budget.context import db
 from budget.models.record import Record
 import os.path as op
+# it is not referenced directly, however it is necessary for relation
 from budget.models.category import Category
 
 class Classifier:
     data_path = op.join(op.dirname(__file__), '../data')
 
-    def estimate(self, df):
-        preparation = Preparation()
-        filtered = preparation.filter(df)
+    def __init__(self):
+        self.model = None
+        self.preparation = Preparation()
+
+    def train(self, df):
+
+        filtered = self.preparation.filter(df)
         train, test = train_test_split(filtered, test_size=0.33, random_state=42)
 
-        preparation.fit(train)
-        model = self.build_model(preparation.num_classes)
+        self.preparation.fit(train)
+        self.model = self.build_model(self.preparation.num_classes, self.preparation.vocab_size(), self.preparation.max_sequence_length)
 
-        train_X, train_y = preparation.transform(train)
-        test_X, test_y = preparation.transform(test)
+        train_X, train_y = self.preparation.transform(train)
+        test_X, test_y = self.preparation.transform(test)
 
-        #for t in train_X:
-        #    print(t)
-        model.fit(
+        self.model.fit(
             train_X,
             train_y,
             epochs=30,
             validation_data=(test_X, test_y)
         )
 
-        train['predicted'] = preparation.inverse_transform_y(model.predict_classes(train_X))
-        test['predicted'] = preparation.inverse_transform_y(model.predict_classes(test_X))
+        train['predicted'] = self.preparation.inverse_transform_y(self.model.predict_classes(train_X))
+        test['predicted'] = self.preparation.inverse_transform_y(self.model.predict_classes(test_X))
         train.to_csv(f"{self.data_path}/train.csv")
         test.to_csv(f"{self.data_path}/test.csv")
 
 
-    def build_model(self, num_classes):
+    def build_model(self, num_classes, vocab_size, maxlen):
         model = tf.keras.Sequential([
-            tf.keras.layers.Dense(512, activation='relu'),
+            tf.keras.layers.Embedding(input_dim=vocab_size,
+                      output_dim=64,
+                      input_length=maxlen),
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(64, activation='relu'),
             #tf.keras.layers.Dropout(0.1),
-            tf.keras.layers.Dense(512, activation='relu'),
+            tf.keras.layers.Dense(64, activation='relu'),
             tf.keras.layers.Dense(num_classes, activation='softmax')
         ])
 
@@ -58,12 +63,27 @@ class Classifier:
         return model
 
     def load(self):
-        return pd.read_sql(
-            Record.query.filter(Record.category_id != None).statement,
+        records = pd.read_sql(
+            Record.query.statement,
             db.engine
         )
+        return (
+            records[records['category_id'].notnull() & records['is_confirmed']],
+            records[records['category_id'].isnull() | ~records['is_confirmed']]
+        )
 
+    def estimate(self, df):
+        X = self.preparation.transform_features(df)
+        return self.preparation.inverse_transform_y(self.model.predict_classes(X))
 
+    def save(self, df):
+        for index, row in df.iterrows():
+            Record.query.filter_by(id=row['id']).update({
+                'category_id': row['predicted'],
+                'is_confirmed': False
+            })
+
+        db.session.commit()
 
 class Preparation:
     def filter(self, df):
@@ -71,9 +91,10 @@ class Preparation:
 
     def __init__(self):
         self.encoder = LabelEncoder()
-        self.tk = Tokenizer(num_words=1000, lower=True, split=" ")
+        self.tk = Tokenizer(lower=True, split=" ")
         self.num_classes = None
-        self.excluded_category_ids = [1, 5, 17]
+        self.excluded_category_ids = []
+        self.max_sequence_length = 10
 
     @staticmethod
     def clean_name(row):
@@ -87,19 +108,26 @@ class Preparation:
         self.encoder.fit(df['category_id'])
         self.num_classes = df['category_id'].nunique()
 
-    def transform(self, df):
+    def transform_features(self, df):
         text = df['name'].map(lambda r: self.clean_name(r))
-        target = self.encoder.transform(df['category_id'])
-
-        y = np_utils.to_categorical(target, num_classes=self.num_classes)
         text = self.tk.texts_to_sequences(text)
-        print(len(self.tk.index_word))
-        X = sequence.pad_sequences(text, maxlen=1000)
-        return X, y
+        return sequence.pad_sequences(text, padding='post', maxlen=self.max_sequence_length)
+
+    def transform(self, df):
+        target = self.encoder.transform(df['category_id'])
+        y = np_utils.to_categorical(target, num_classes=self.num_classes)
+        return self.transform_features(df), y
 
     def inverse_transform_y(self, y):
         return self.encoder.inverse_transform(y)
 
+    def vocab_size(self):
+        return len(self.tk.word_index) + 1
 
-classifier = Classifier()
-classifier.estimate(classifier.load())
+
+#classifier = Classifier()
+#known, unknown = classifier.load()
+#classifier.train(known)
+
+#unknown['predicted'] = classifier.estimate(unknown)
+#classifier.save(unknown)
