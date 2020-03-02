@@ -1,0 +1,52 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+{{ super() }}
+<div class="row">
+    <div class="col-lg-3 col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-10 text-right">
+                        <div class="huge">{{ categories_num }} Categories</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-4">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-10 text-right">
+                        <div class="huge">{{ categorized_confirmed_records }} Categorized and confirmed Records</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-4">
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-10 text-right">
+                        <div class="huge">{{ categorized_not_confirmed_records }} Categorized and not confirmed Records</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-4">
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-10 text-right">
+                        <div class="huge">{{ uncategorized_records }} Uncategorized Records</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<a href="{{ url_for('categorization.action_categorize') }}" class="btn btn-default btn-block">Categorize</a>
+{% endblock body %}

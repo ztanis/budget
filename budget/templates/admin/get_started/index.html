@@ -1,0 +1,55 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+{{ super() }}
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="panel panel-info">
+            <div class="panel-heading">Step 1: Import or add records</div>
+            <div class="panel-body">
+                    Start using budget with <a href="{{ url_for('record.create_view') }}">adding transaction records.</a>
+            </div>
+            <div class="panel-body">
+                Or <a href="{{ url_for('statement.create_view') }}">import records</a> from financial statements if import for your bank is supported.
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="panel panel-info">
+            <div class="panel-heading">Step 2: Create and assign categories</div>
+            <div class="panel-body">
+                <a href="{{ url_for('category.create_view') }}">Create categories</a> like 'Food', 'Health', 'Travel', etc.
+                Find the best set of categories what matches you lifestyle.
+            </div>
+            <div class="panel-body">
+                Than <a href="{{ url_for('record.index_view') }}">assign categories</a> to records.
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="panel panel-info">
+            <div class="panel-heading">Step 3: Automatically assign categories</div>
+            <div class="panel-body">
+                To save time on manual categories assignment use
+                <a href="{{ url_for('category.create_view') }}">automatic categorization</a>
+                Model will learn from already assigned categories and will fill categories for records with missing ones.
+            </div>
+            <div class="panel-body">
+                <a href="{{ url_for('record.index_view') }}">Confirm</a> if categories was assigned correctly.
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="panel panel-info">
+            <div class="panel-heading">Step 4: Visualise expenses</div>
+            <div class="panel-body">
+                Visualise expenses with <a href="https://www.metabase.com/start/">Metabase</a>.
+                In next releases will be available built-in dashboard with basic analytics.
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock body %}

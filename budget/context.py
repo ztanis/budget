@@ -9,5 +9,5 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456790'
 
 # Create in-memory database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/budget'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/budget_dev'
 db = SQLAlchemy(app)

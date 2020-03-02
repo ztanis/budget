@@ -6,3 +6,6 @@ pandas
 sklearn
 tensorflow
 tensorflow_hub
+pytest
+mock
+pytest-mock

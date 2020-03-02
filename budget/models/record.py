@@ -19,3 +19,5 @@ class Record(db.Model):
     __table_args__ = (
         UniqueConstraint('name', 'account', 'recorded_at', 'amount', name='uix_1'),
     )
+
+

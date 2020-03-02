@@ -1,16 +1,22 @@
 import os.path as op
-from flask_admin import form
-from flask_admin.contrib import sqla
+from enum import Enum
 
 from budget.context import db
 
 # Figure out base upload path
 file_path = op.join(op.dirname(__file__), '../files')
 
-class File(db.Model):
+
+class StatementStatus(Enum):
+    uploaded = 'uploaded'
+    imported = 'imported'
+
+
+class Statement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode(64))
+    source = db.Column(db.Unicode(64))
     path = db.Column(db.Unicode(128))
+    status = db.Column(db.Unicode(16), default=StatementStatus.uploaded.value)
 
     def __unicode__(self):
         return self.name

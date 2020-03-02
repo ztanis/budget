@@ -1,5 +1,3 @@
-from typing import Dict
-
 import pandas as pd
 import tensorflow as tf
 from keras import utils as np_utils
@@ -11,18 +9,16 @@ from sklearn.preprocessing import LabelEncoder
 from budget.context import db
 from budget.models.record import Record
 import os.path as op
-# it is not referenced directly, however it is necessary for relation
+# it is not referenced directly, however it is necessary for loading as Record relation
 from budget.models.category import Category
 
-class Classifier:
-    data_path = op.join(op.dirname(__file__), '../data')
 
+class Classifier:
     def __init__(self):
         self.model = None
         self.preparation = Preparation()
 
     def train(self, df):
-
         filtered = self.preparation.filter(df)
         train, test = train_test_split(filtered, test_size=0.33, random_state=42)
 
@@ -41,9 +37,6 @@ class Classifier:
 
         train['predicted'] = self.preparation.inverse_transform_y(self.model.predict_classes(train_X))
         test['predicted'] = self.preparation.inverse_transform_y(self.model.predict_classes(test_X))
-        train.to_csv(f"{self.data_path}/train.csv")
-        test.to_csv(f"{self.data_path}/test.csv")
-
 
     def build_model(self, num_classes, vocab_size, maxlen):
         model = tf.keras.Sequential([
@@ -85,6 +78,7 @@ class Classifier:
 
         db.session.commit()
 
+
 class Preparation:
     def filter(self, df):
         return df[(df['category_id'] > 0) & (~df['category_id'].isin(self.excluded_category_ids))]
@@ -125,9 +119,10 @@ class Preparation:
         return len(self.tk.word_index) + 1
 
 
-#classifier = Classifier()
-#known, unknown = classifier.load()
-#classifier.train(known)
+def classify_unknown():
+    classifier = Classifier()
+    known, unknown = classifier.load()
+    classifier.train(known)
 
-#unknown['predicted'] = classifier.estimate(unknown)
-#classifier.save(unknown)
+    unknown['predicted'] = classifier.estimate(unknown)
+    classifier.save(unknown)

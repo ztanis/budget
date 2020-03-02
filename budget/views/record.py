@@ -1,9 +1,7 @@
 from flask import flash
-from flask_admin import expose
 from flask_admin.actions import action
 from flask_admin.contrib import sqla
 
-from budget.importers import process
 from budget.models.record import Record
 from budget.context import db
 
@@ -21,17 +19,11 @@ class RecordAdmin(sqla.ModelView):
     form_columns = ('name', 'account', 'amount', 'comment', 'category', 'created_at', 'updated_at', 'recorded_at')
     column_editable_list = ['category', 'is_confirmed']
 
-    @expose('/import')
-    def data_import(self):
-        process.import_records()
-        return "Imported"
-
     @action('confirm', 'Confirm Category', 'Are you sure you want to confirm records?')
     def action_confirm(self, ids):
         for record_id in ids:
             Record.query.filter_by(id=record_id).update({
                 'is_confirmed': True
             })
-        flash(f"{len(ids)} records were confirmed")
-
         db.session.commit()
+        flash(f"{len(ids)} records were confirmed")
