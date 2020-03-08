@@ -5,6 +5,7 @@ mysqlclient
 pandas
 sklearn
 tensorflow
+keras
 tensorflow_hub
 pytest
 mock
