@@ -12,12 +12,12 @@ class RecordAdmin(sqla.ModelView):
         Moreover, support for association proxies to association proxies
         (e.g.: keywords_values) is currently limited to column_list only."""
 
-    column_list = ["recorded_at", 'name', 'amount', 'category', 'is_confirmed']
+    column_list = ["recorded_at", 'name', 'amount', 'category', 'is_confirmed', 'tags']
     column_sortable_list = ['recorded_at', 'name', 'amount', 'category', 'is_confirmed']
-    column_filters = ('recorded_at', 'name', 'account', 'category', 'is_confirmed')
+    column_filters = ('recorded_at', 'name', 'account', 'category', 'is_confirmed', 'tags')
 
-    form_columns = ('name', 'account', 'amount', 'comment', 'category', 'created_at', 'updated_at', 'recorded_at')
-    column_editable_list = ['category', 'is_confirmed']
+    form_columns = ('name', 'account', 'amount', 'comment', 'category', 'created_at', 'updated_at', 'recorded_at', 'tags')
+    column_editable_list = ['category', 'is_confirmed', 'tags']
 
     @action('confirm', 'Confirm Category', 'Are you sure you want to confirm records?')
     def action_confirm(self, ids):

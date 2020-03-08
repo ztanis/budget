@@ -1,6 +1,7 @@
 from sqlalchemy import UniqueConstraint
 
 from  budget.context import db
+from budget.models.tag import Tag
 
 
 class Record(db.Model):
@@ -16,6 +17,7 @@ class Record(db.Model):
     created_at = db.Column(db.DateTime(), nullable = False)
     updated_at = db.Column(db.DateTime(), nullable = False)
     is_confirmed = db.Column(db.Boolean, default=False)
+    tags = db.relationship(Tag, secondary='record_tag')
     __table_args__ = (
         UniqueConstraint('name', 'account', 'recorded_at', 'amount', name='uix_1'),
     )

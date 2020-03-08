@@ -11,6 +11,7 @@ class CBImporter(BaseImporter):
     columns = [
         'booking_date',
         'processed_at',
+        'operation',
         'name',
         'amount',
         'currency',
@@ -27,7 +28,7 @@ class CBImporter(BaseImporter):
         return [self._to_record(row) for row in records]
 
     def read(self, filename: str) -> DataFrame:
-        return pd.read_csv(filename, sep=';', decimal=',', names=self.columns, header=0)
+        return pd.read_csv(filename, sep=';', decimal=',', names=self.columns, header=0, index_col=False)
 
     @staticmethod
     def _transform(records_df: DataFrame) -> DataFrame:
