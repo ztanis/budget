@@ -28,7 +28,10 @@ class StatementView(sqla.ModelView):
     }
 
     form_choices = {
-        'source': [('cb', 'Commerzbank')]
+        'source': [
+            ('cb', 'Commerzbank'),
+            ('n26', 'N26'),
+        ]
     }
 
     @action('import', 'Import')
@@ -36,5 +39,3 @@ class StatementView(sqla.ModelView):
         for record_id in ids:
             sources.import_records(record_id)
         flash(f"{len(ids)} file(s) were imported")
-
-
