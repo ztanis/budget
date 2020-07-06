@@ -26,6 +26,7 @@ class N26Importer(BaseImporter):
     def parse(self, records_df: DataFrame) -> List[Record]:
         return list(
             records_df.pipe(self._transform)
+            .fillna("")
             .apply(self._to_record, axis="columns")
             .values
         )
