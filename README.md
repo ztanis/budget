@@ -29,5 +29,5 @@ where `SQLALCHEMY_DATABASE_URI` is a url of db. See more details and options for
 # [Optional] Visualise expenses analytics
 
 1. [Install metabase](https://www.metabase.com/docs/latest/operations-guide/installing-metabase.html)
-2. [Add Database source](https://www.metabase.com/docs/latest/administration-guide/01-managing-databases.html)
+2. [Add Database source](https://www.metabase.com/docs/latest/administration-guide/01-managing-databases.html). Filename for sqlite DB: <path to project root>/budget/data/budget.db
 3. [Ask a question about your expenses](https://www.metabase.com/docs/latest/users-guide/04-asking-questions.html)
